@@ -1,0 +1,36 @@
+{
+  "name": "@hireup/common",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    "./constants": {
+      "types": "./src/constants/index.ts",
+      "import": "./src/constants/index.ts",
+      "require": "./src/constants/index.ts"
+    },
+    "./error": {
+      "types": "./src/errors.ts",
+      "import": "./src/errors.ts",
+      "require": "./src/errors.ts"
+    },
+    "./types": {
+      "types": "./src/types/index.ts",
+      "import": "./src/types/index.ts",
+      "require": "./src/types/index.ts"
+    },
+    "./responses": {
+      "types": "./src/responses/index.ts",
+      "import": "./src/responses/index.ts",
+      "require": "./src/responses/index.ts"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@hireup/typescript-config": "*"
+  }
+}

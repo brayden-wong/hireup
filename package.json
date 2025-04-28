@@ -1,14 +1,7 @@
 {
   "name": "hireup",
-  "private": true,
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
-  },
   "devDependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "4.0.0-alpha.0",
     "prettier": "^3.5.3",
     "turbo": "^2.4.4",
     "typescript": "5.8.2"
@@ -17,6 +10,16 @@
     "node": ">=18"
   },
   "packageManager": "bun@1.2.4",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev:offline": "docker compose up -d && turbo run dev",
+    "dev:cloud": "turbo run dev",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"
