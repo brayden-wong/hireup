@@ -34,7 +34,7 @@ export const env = createEnv({
    */
   runtimeEnv: {
     API_URL: process.env.API_URL,
-    REACT_SCAN: process.env.REACT_SCAN,
+    REACT_SCAN: process.env.REACT_SCAN ?? "false",
     NEXT_PUBLIC_API_WS: process.env.NEXT_PUBLIC_API_WS,
     UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
 
