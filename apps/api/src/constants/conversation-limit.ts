@@ -1,0 +1,1 @@
+export const FETCH_MAX_CONVERSATIONS = 20;
