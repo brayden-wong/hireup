@@ -4,7 +4,7 @@ import { useContext } from "react";
 
 import { AuthContext, UserContext } from "../contexts/user-context";
 
-export type Account = "user" | "recruiter";
+export type Account = "user" | "recruiter" | "admin";
 
 export type User = {
   id: number;

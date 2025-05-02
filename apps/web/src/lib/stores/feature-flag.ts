@@ -1,44 +1,35 @@
 import { createStore, useStore } from "zustand";
-import type { FeatureFlag } from "@hireup/common/constants";
-import type { FlagDetails } from "@hireup/common/types";
+import type { FeatureFlagStatus } from "@hireup/common/constants";
 
 import { useContext } from "react";
 
 import { FeatureFlagContext } from "../contexts/feature-flag-context";
 
-export type FeatureFlagData = Record<FeatureFlag, FlagDetails>;
-
-type FeatureFlagState = {
-  featureFlags: FeatureFlagData;
-  flags: FeatureFlagData;
-};
+type FeatureFlagState = { flags: Record<string, FeatureFlagStatus> };
 
 type FeatureFlagActions = {
-  setFlag: (flag: FeatureFlag, details: Partial<FlagDetails>) => void;
+  setFlag: (flag: string, status: FeatureFlagStatus) => void;
 };
 
 export type FeatureFlagApi = FeatureFlagState & FeatureFlagActions;
 
-export function createFeatureFlagStore(data: FeatureFlagState) {
+export function createFeatureFlagStore(
+  data: Record<string, FeatureFlagStatus>,
+) {
   return createStore<FeatureFlagApi>((set) => ({
-    ...data,
-    setFlag: (flag, details) =>
-      set((state) => {
-        return {
-          ...state,
-          featureFlags: {
-            ...state.featureFlags,
-            [flag]: {
-              ...state.featureFlags[flag],
-              ...details,
-            },
-          },
-        };
-      }),
+    flags: data,
+    setFlag: (flag, status) =>
+      set((state) => ({
+        flags: {
+          ...state.flags,
+          [flag]: status,
+        },
+      })),
   }));
 }
+1;
 
-function useFeatureFlag<T>(selector: (state: FeatureFlagApi) => T): T {
+function useFeatureFlags<T>(selector: (state: FeatureFlagApi) => T): T {
   const context = useContext(FeatureFlagContext);
 
   if (!context)
@@ -47,14 +38,14 @@ function useFeatureFlag<T>(selector: (state: FeatureFlagApi) => T): T {
   return useStore(context, selector);
 }
 
-export function useFeatureFlags() {
-  return useFeatureFlag((state) => state.featureFlags);
+export function useFeatureFlag(flag: string) {
+  const featureFlag = useFeatureFlags((state) => state.flags[flag]);
+
+  if (!featureFlag) throw new Error(`Feature flag ${flag} does not exist`);
+
+  return featureFlag;
 }
 
-export function useConversationsFlag() {
-  return useFeatureFlag((state) => state.flags.conversations);
-}
-
-export function useJobsFlag() {
-  return useFeatureFlag((state) => state.flags.jobs);
+export function useSetFeatureFlag() {
+  return useFeatureFlags((state) => state.setFlag);
 }

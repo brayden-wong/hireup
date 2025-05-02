@@ -28,7 +28,7 @@ const MainLayout = async ({ children }: PropsWithChildren) => {
     <SignedIn>
       <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
       <WebsocketProvider>
-        <FeatureFlagProvider {...flags}>
+        <FeatureFlagProvider flags={flags}>
           <CreateMessageProvider>
             <SidebarProvider>
               <Sidebar />

@@ -2,20 +2,38 @@ import type { NextRequest } from "next/server";
 
 import { NextResponse } from "next/server";
 
+import { ADMIN_ROUTES } from "./constants/middleware-routes";
 import { getAuth } from "./server/data/get-auth";
 
 export async function middleware(req: NextRequest) {
-  if (req.nextUrl.pathname.includes("/jobs")) {
+  if (ADMIN_ROUTES.includes(req.nextUrl.pathname)) {
     const auth = await getAuth();
-
-    const path = req.nextUrl.pathname;
-
-    console.log("PATH", path);
 
     if (!auth.authenticated)
       return NextResponse.redirect(new URL("/auth", req.url));
 
     const { user } = auth;
+
+    if (user.account !== "admin")
+      return NextResponse.redirect(new URL("/auth", req.url));
+
+    return NextResponse.rewrite(
+      new URL(`/admin${req.nextUrl.pathname}`, req.url),
+    );
+  }
+
+  if (req.nextUrl.pathname.includes("/jobs")) {
+    const auth = await getAuth();
+
+    const path = req.nextUrl.pathname;
+
+    if (!auth.authenticated)
+      return NextResponse.redirect(new URL("/auth", req.url));
+
+    const { user } = auth;
+
+    if (user.account === "admin")
+      return NextResponse.rewrite(new URL(`/admin${path}`, req.url));
 
     if (user.account === "recruiter")
       return NextResponse.rewrite(new URL(`/recruiter${path}`, req.url));

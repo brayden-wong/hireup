@@ -1,15 +1,10 @@
-// src/components/FeatureBadge.tsx
-// Adjust path to your Badge component
 import { Sparkles, Clock, Zap } from "lucide-react";
-// Or your icon library
 import type { FEATURE_FLAG_STATUS } from "@hireup/common/constants";
 
 import { Badge } from "~/components/ui/badge";
 
-// Adjust path
-
 type FeatureBadgeProps = {
-  status: (typeof FEATURE_FLAG_STATUS)[number] | undefined;
+  status: (typeof FEATURE_FLAG_STATUS)[number];
 };
 
 export const FeatureBadge = ({ status }: FeatureBadgeProps) => {
@@ -38,7 +33,6 @@ export const FeatureBadge = ({ status }: FeatureBadgeProps) => {
     case "enabled":
     case "disabled":
     default:
-      // No badge for enabled or disabled states, or unknown states
       return null;
   }
 };

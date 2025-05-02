@@ -132,3 +132,48 @@ export const UserMiddleware = new Elysia({ name: "Recruiter Middleware" })
 
     return session;
   });
+
+export const AdminMiddleware = new Elysia({ name: "Admin Middleware" })
+  .use(json)
+  .use(dbFunctions)
+  .guard({
+    as: "scoped",
+    headers: t.Object({
+      "x-session-key": t.String(),
+    }),
+  })
+  .resolve({ as: "scoped" }, async (ctx) => {
+    const sessionId = ctx.headers["x-session-key"];
+
+    if (!sessionId)
+      return ctx.error(
+        "Unauthorized",
+        ctx.json.stringify({
+          success: false,
+          error: SESSION_NOT_PROVIDED,
+        })
+      );
+
+    const session = await ctx.db_functions.getSession(sessionId);
+
+    if (!session) {
+      return ctx.error(
+        "Unauthorized",
+        ctx.json.stringify({
+          success: false,
+          error: SESSION_NOT_FOUND,
+        })
+      );
+    }
+
+    if (session.account !== "admin")
+      return ctx.error(
+        403,
+        ctx.json.stringify({
+          success: false,
+          error: UNAUTHORIZED_ROLE,
+        })
+      );
+
+    return session;
+  });

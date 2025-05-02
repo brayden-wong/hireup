@@ -142,15 +142,15 @@ export const JobForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Job Title</FormLabel>
+                  <FormDescription>
+                    The title of the position you are hiring for.
+                  </FormDescription>
                   <FormControl>
                     <Input
                       {...field}
                       placeholder="e.g. Senior Software Engineer"
                     />
                   </FormControl>
-                  <FormDescription>
-                    The title of the position you are hiring for.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -166,12 +166,12 @@ export const JobForm = () => {
                       (optional)
                     </span>
                   </FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="e.g. Acme Inc." />
-                  </FormControl>
                   <FormDescription>
                     The name of your company or organization.
                   </FormDescription>
+                  <FormControl>
+                    <Input {...field} placeholder="e.g. Acme Inc." />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -182,10 +182,10 @@ export const JobForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Location</FormLabel>
+                  <FormDescription>Where the job is located.</FormDescription>
                   <FormControl>
                     <Input {...field} placeholder="e.g. San Francsico, CA" />
                   </FormControl>
-                  <FormDescription>Where the job is located.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -197,6 +197,7 @@ export const JobForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Job Type</FormLabel>
+                    <FormDescription>The type of employment.</FormDescription>
                     <FormControl>
                       <Select
                         defaultValue={field.value}
@@ -216,7 +217,6 @@ export const JobForm = () => {
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <FormDescription>The type of employment.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -227,6 +227,10 @@ export const JobForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Relative Experience</FormLabel>
+                    <FormDescription>
+                      The relative amount of experience required for the
+                      candidate to succeed for this role.
+                    </FormDescription>
                     <Select
                       defaultValue={field.value}
                       onValueChange={field.onChange}
@@ -245,10 +249,6 @@ export const JobForm = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormDescription>
-                      The relative amount of experience required for the
-                      candidate to succeed for this role.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -260,6 +260,9 @@ export const JobForm = () => {
               render={({ field }) => (
                 <FormItem className="">
                   <FormLabel>Job Environment</FormLabel>
+                  <FormDescription>
+                    The work environment for this position.
+                  </FormDescription>
                   <Select
                     defaultValue={field.value}
                     onValueChange={field.onChange}
@@ -277,9 +280,6 @@ export const JobForm = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    The work environment for this position.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -291,6 +291,9 @@ export const JobForm = () => {
                 render={({ field: { value, onChange, ...field } }) => (
                   <FormItem>
                     <FormLabel>Min Salary</FormLabel>
+                    <FormDescription>
+                      The minimum annual salary for this position.
+                    </FormDescription>
                     <FormControl>
                       <Input
                         min="0"
@@ -304,9 +307,6 @@ export const JobForm = () => {
                         }}
                       />
                     </FormControl>
-                    <FormDescription>
-                      The minimum annual salary for this position.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -322,6 +322,9 @@ export const JobForm = () => {
                         (Optional)
                       </span>
                     </FormLabel>
+                    <FormDescription>
+                      The maximum annual salary for this position.
+                    </FormDescription>
                     <FormControl>
                       <Input
                         {...field}
@@ -335,9 +338,6 @@ export const JobForm = () => {
                         }}
                       />
                     </FormControl>
-                    <FormDescription>
-                      The maximum annual salary for this position.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -349,15 +349,15 @@ export const JobForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Application URL</FormLabel>
+                  <FormDescription>
+                    A direct link where candidates can apply for this position.
+                  </FormDescription>
                   <FormControl>
                     <Input
                       {...field}
                       placeholder="e.g. https://company.com/careers/apply"
                     />
                   </FormControl>
-                  <FormDescription>
-                    A direct link where candidates can apply for this position.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -399,6 +399,10 @@ export const JobForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Job Description</FormLabel>
+                  <FormDescription>
+                    Provide a detailed description of the job and its
+                    requirements.
+                  </FormDescription>
                   <FormControl>
                     <Textarea
                       {...field}
@@ -406,10 +410,6 @@ export const JobForm = () => {
                       placeholder="Describe the role, responsibilities, requirements, benefits, etc."
                     />
                   </FormControl>
-                  <FormDescription>
-                    Provide a detailed description of the job and its
-                    requirements.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -537,6 +537,10 @@ const SkillInput = ({ skills, addSkill, removeSkill }: SkillsInputProps) => {
 
   return (
     <div className="relative">
+      <FormDescription className="mt-2">
+        Enter skills that are relavent to the job. You can add as many skills
+        that are required for the role.
+      </FormDescription>
       <div className="bg-background border-input relative flex w-full flex-col gap-2 rounded-md border">
         {skills.length > 0 && (
           <div className="flex flex-wrap items-start justify-start gap-2 px-2 pt-2">
@@ -616,10 +620,6 @@ const SkillInput = ({ skills, addSkill, removeSkill }: SkillsInputProps) => {
           </motion.div>
         )}
       </AnimatePresence>
-      <FormDescription className="mt-2">
-        Enter skills that are relavent to the job. You can add as many skills
-        that are required for the role.
-      </FormDescription>
     </div>
   );
 };

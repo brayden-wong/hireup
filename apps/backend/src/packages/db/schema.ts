@@ -1,5 +1,3 @@
-// Example model schema from the Drizzle docs
-// https://orm.drizzle.team/docs/sql-schema-declaration
 import { relations, sql } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import {
@@ -24,14 +22,11 @@ import {
   CONVERSATION_PERMISSIONS,
   APPLICANT_STATUSES,
   JOB_ENVIRONMENTS,
-  FEATURE_FLAGS,
-  FeatureFlag as FeatureFlagType,
   JOB_TYPES,
   FEATURE_FLAG_STATUS,
   EXPERIENCE,
   NOTIFICATION_TYPES,
 } from "@hireup/common/constants";
-import { FlagDetails } from "@hireup/common/types";
 
 function generateId(): string {
   return createId();
@@ -52,26 +47,12 @@ export const Experience = pgEnum("experience", EXPERIENCE);
 
 export const Applicants = pgEnum("applicant_status", APPLICANT_STATUSES);
 
-export const FeatureFlag = pgEnum("feature_flag", FEATURE_FLAGS);
-
 export const Notifications = pgEnum("notification_type", NOTIFICATION_TYPES);
 
 export const FeatureFlagStatus = pgEnum(
   "feature_flag_status",
   FEATURE_FLAG_STATUS
 );
-
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
-
-const FeatureFlagDefaultValue: Record<FeatureFlagType, FlagDetails> = {
-  jobs: { value: false, status: "soon" },
-  conversations: { value: true, status: "enabled" },
-};
 
 export const users = pgTable(
   "users",
@@ -83,6 +64,7 @@ export const users = pgTable(
     email: varchar("email", { length: 128 }).notNull().unique(),
     password: text("password").notNull(),
     account: AccountType("account").notNull().default("user"),
+    betaUser: boolean("beta_user").notNull().default(false),
     createdAt: timestamp("created_at", { mode: "date" }).default(
       sql`CURRENT_TIMESTAMP`
     ),
@@ -354,7 +336,7 @@ export const applicants = pgTable(
     updatedAt: timestamp("updated_at", { mode: "date" })
       .notNull()
       .default(sql`CURRENT_TIMESTAMP`)
-      .$onUpdateFn(() => sql`CURRENT_TIMESTAMP`),
+      .$onUpdateFn(() => new Date()),
   },
   (t) => [
     index("job_id_idx").on(t.jobId),
@@ -374,24 +356,7 @@ export const featureFlags = pgTable("feature_flags", {
   updatedAt: timestamp("updated_at", { mode: "date" })
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`)
-    .$onUpdateFn(() => sql`CURRENT_TIMESTAMP`),
-});
-
-export const userFeatureFlags = pgTable("user_feature_flags", {
-  userId: integer("user_id")
-    .notNull()
-    .primaryKey()
-    .references(() => users.id, { onDelete: "cascade" }),
-  flags: jsonb("flags")
-    .$type<Record<FeatureFlagType, FlagDetails>>()
-    .notNull()
-    .default(FeatureFlagDefaultValue),
-  createdAt: timestamp("created_at", { mode: "date" })
-    .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: timestamp("updated_at", { mode: "date" })
-    .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
+    .$onUpdateFn(() => new Date()),
 });
 
 export const notifications = pgTable(
@@ -432,10 +397,6 @@ export const userRelations = relations(users, ({ one, many }) => ({
     fields: [users.id],
     references: [profiles.userId],
   }),
-  featureFlags: one(userFeatureFlags, {
-    fields: [users.id],
-    references: [userFeatureFlags.userId],
-  }),
 }));
 
 export const profileRelations = relations(profiles, ({ one, many }) => ({
@@ -445,16 +406,6 @@ export const profileRelations = relations(profiles, ({ one, many }) => ({
   }),
   skills: many(userSkills),
 }));
-
-export const userFeatureFlagRelations = relations(
-  userFeatureFlags,
-  ({ one }) => ({
-    user: one(users, {
-      fields: [userFeatureFlags.userId],
-      references: [users.id],
-    }),
-  })
-);
 
 export const sessionRelations = relations(sessions, ({ one }) => ({
   user: one(users, { fields: [sessions.userId], references: [users.id] }),

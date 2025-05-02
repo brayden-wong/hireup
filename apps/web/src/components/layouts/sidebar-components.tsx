@@ -7,27 +7,35 @@ import {
   ChevronsUpDown,
   CreditCard,
   LogOut,
+  Settings,
   MessageSquareDot,
   Newspaper,
   Sparkles,
+  ChevronRight,
+  Flag,
 } from "lucide-react";
 import { toast } from "sonner";
 import superjson from "superjson";
 import type { Event } from "~/lib/types/events";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 import { useSession, useUser } from "~/lib/stores/auth-store";
-import {
-  useConversationsFlag,
-  useFeatureFlags,
-  useJobsFlag,
-} from "~/lib/stores/feature-flag";
+import { useFeatureFlag } from "~/lib/stores/feature-flag";
 import { useWebsocketStore } from "~/lib/stores/websocket-store";
 import { formatName } from "~/lib/utils";
 
-import { FeatureFlagStatus } from "@hireup/common/constants";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../ui/collapsible";
+import {
+  FEATURE_FLAG_STATUS,
+  FeatureFlagStatus,
+} from "@hireup/common/constants";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import {
   DropdownMenu,
@@ -64,8 +72,6 @@ export function Websocket() {
 }
 
 export const FeedMenuButton = () => {
-  const router = useRouter();
-
   const user = useUser();
 
   if (user.account === "recruiter") return null;
@@ -74,42 +80,78 @@ export const FeedMenuButton = () => {
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarMenuButton
-          onClick={() => router.push("/feed")}
+          asChild
           className="focus:ring-primary focus:ring-offset-background outline-none focus:ring-2 focus:ring-offset-2"
         >
-          <div className="flex items-center gap-4">
-            <Newspaper className="size-5" />
-            Feed
-          </div>
+          <Link href="/feed">
+            <div className="flex items-center gap-2">
+              <Newspaper className="size-4" />
+              Feed
+            </div>
+          </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>
   );
 };
 
+export const AdminSidebarButton = () => {
+  const [open, onOpenChange] = useState(false);
+
+  const user = useUser();
+
+  if (user.account !== "admin") return null;
+
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <Collapsible open={open} onOpenChange={onOpenChange}>
+          <CollapsibleTrigger asChild>
+            <SidebarMenuButton className="flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Settings className="size-4" />
+                Admin Config
+              </span>
+              <ChevronRight
+                data-state={open ? "open" : "closed"}
+                className="size-4 transition-transform duration-300 data-[state=closed]:rotate-0 data-[state=open]:rotate-90"
+              />
+            </SidebarMenuButton>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="border-border mt-1 ml-2 border-l-2 pl-2">
+            <SidebarMenuButton asChild>
+              <Link href="/feature-flags">
+                <Flag className="size-4" />
+                Feature Flags
+              </Link>
+            </SidebarMenuButton>
+          </CollapsibleContent>
+        </Collapsible>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  );
+};
+
 export const JobMenuButton = () => {
-  const router = useRouter();
-  const featureFlags = useFeatureFlags();
-  const flag = useJobsFlag();
+  const flag = useFeatureFlag("jobs");
 
-  if (featureFlags.jobs.status === "disabled" || flag.status === "disabled")
-    return null;
-
-  const isActive = getActiveState(flag.status);
+  if (flag === "disabled") return null;
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarMenuButton
-          disabled={!(flag.status === "enabled" || flag.status === "beta")}
-          onClick={() => router.push("/jobs")}
+          asChild
+          disabled={!(flag === "enabled" || flag === "beta")}
           className="focus:ring-primary focus:ring-offset-background justify-between focus:ring-2 focus:ring-offset-2 disabled:opacity-100 hover:disabled:cursor-not-allowed"
         >
-          <div className="flex items-center gap-4">
-            <Briefcase className="size-5" />
-            Jobs
-          </div>
-          {isActive && <FeatureBadge status={flag.status} />}
+          <Link href="/jobs">
+            <div className="flex items-center gap-2">
+              <Briefcase className="size-4" />
+              Jobs
+            </div>
+            <FeatureBadge status={flag} />
+          </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>
@@ -122,14 +164,18 @@ export const MessageMenuButton = () => {
 
   const { ws } = useWebsocketStore();
 
-  const navigate = useCallback(() => {
-    if (path === "/conversations") return;
+  const navigate = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
 
-    router.push("/conversations");
-  }, [path, router]);
+      if (path === "/conversations") return;
 
-  const featureFlags = useFeatureFlags();
-  const flag = useConversationsFlag();
+      router.push("/conversations");
+    },
+    [path, router],
+  );
+
+  const flag = useFeatureFlag("conversations");
 
   useEffect(() => {
     if (!ws) return;
@@ -161,26 +207,22 @@ export const MessageMenuButton = () => {
     };
   }, [ws]);
 
-  if (
-    featureFlags.conversations.status === "disabled" ||
-    flag.status === "disabled"
-  )
-    return null;
-
-  const isActive = getActiveState(featureFlags.conversations.status);
+  if (flag === "disabled") return null;
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarMenuButton
-          onClick={navigate}
+          asChild
           className="focus:ring-primary focus:ring-offset-background justify-between focus:ring-2 focus:ring-offset-2"
         >
-          <div className="flex items-center gap-4">
-            <MessageSquareDot className="size-5" />
-            Conversations
-          </div>
-          {isActive && <FeatureBadge status={flag.status} />}
+          <Link href="/conversations" onClick={navigate}>
+            <div className="flex items-center gap-2">
+              <MessageSquareDot className="size-4" />
+              Conversations
+            </div>
+            <FeatureBadge status={flag} />
+          </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>
@@ -286,7 +328,3 @@ export const UserFooter = () => {
     </SidebarFooter>
   );
 };
-
-function getActiveState(flag: FeatureFlagStatus) {
-  return ["enabled", "beta", "soon", "new"].includes(flag);
-}

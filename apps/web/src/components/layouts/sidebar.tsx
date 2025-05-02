@@ -1,4 +1,5 @@
 import {
+  AdminSidebarButton,
   FeedMenuButton,
   JobMenuButton,
   MessageMenuButton,
@@ -22,6 +23,7 @@ const AppSidebar = () => (
             <FeedMenuButton />
             <JobMenuButton />
             <MessageMenuButton />
+            <AdminSidebarButton />
           </div>
         </SidebarGroup>
       </SidebarContent>
